@@ -15,7 +15,6 @@ module kmac_app
   localparam int          Share              = (EnMasking) ? 2 : 1, // derived parameter
   parameter  bit          SecIdleAcceptSwMsg = 1'b0,
   parameter  int unsigned NumAppIntf         = 3,
-  parameter  app_config_t AppCfg[NumAppIntf] = '{AppCfgKeyMgr, AppCfgLcCtrl, AppCfgRomCtrl},
   parameter bit           EnFullKmac         = 1'b1
 ) (
   input clk_i,
@@ -134,6 +133,10 @@ module kmac_app
   /////////////////
   // Definitions //
   /////////////////
+  app_config_t [NumAppIntf-1:0] AppCfg;
+  assign AppCfg[0] = AppCfgKeyMgr;
+  assign AppCfg[1] = AppCfgLcCtrl;
+  assign AppCfg[2] = AppCfgRomCtrl;
 
   // Digest width is same to the key width `keymgr_pkg::KeyWidth`.
   localparam int KeyMgrKeyW = $bits(keymgr_key_i.key[0]);
@@ -259,8 +262,8 @@ module kmac_app
 
   // app_id latch
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni) app_id <= AppIdxW'(0) ; // Do not select any
-    else if (clr_appid) app_id <= AppIdxW'(0);
+    if (!rst_ni) app_id <= '0; // Do not select any
+    else if (clr_appid) app_id <= '0;
     else if (set_appid) app_id <= app_id_d;
   end
 
@@ -302,7 +305,7 @@ module kmac_app
     .ready_i (arb_ready)
   );
 
-  assign app_id_d = AppIdxW'(arb_idx);
+  assign app_id_d = arb_idx;
   assign arb_ready = set_appid;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
