@@ -14,15 +14,15 @@
 //
 //======================================================================
 //
-// sha_clp_wrapper.sv
+// sha3_clp_wrapper.sv
 // --------
-// Wrapper for instantiation sha engine
+// Wrapper for instantiation sha3 engine
 //
 // 
 // 
 //======================================================================
 
-module sha_clp_wrapper
+module sha3_clp_wrapper
   import sha3_reg_pkg::*;
   #(
   parameter AHB_DATA_WIDTH = 32,
@@ -224,7 +224,7 @@ u_sha_inst (
   .en_masking_o                   (),
 
   // Idle signal
-  .idle_o                         (sha_idle),
+  .idle_o                         (sha_idle)
 );
 
 always_comb begin
