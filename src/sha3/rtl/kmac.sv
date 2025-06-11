@@ -53,8 +53,8 @@ module kmac
   input clk_edn_i,
   input rst_edn_ni,
 
-  input  tlul_pkg::tl_h2d_t tl_i,
-  output tlul_pkg::tl_d2h_t tl_o,
+  input  caliptra_tlul_pkg::tl_h2d_t tl_i,
+  output caliptra_tlul_pkg::tl_d2h_t tl_o,
 
   // Alerts
   input  alert_rx_t [NumAlerts-1:0] alert_rx_i,
@@ -154,8 +154,8 @@ module kmac
     WinMsgFifo = 1
   } tl_window_e;
 
-  tlul_pkg::tl_h2d_t tl_win_h2d[2];
-  tlul_pkg::tl_d2h_t tl_win_d2h[2];
+  caliptra_tlul_pkg::tl_h2d_t tl_win_h2d[2];
+  caliptra_tlul_pkg::tl_d2h_t tl_win_d2h[2];
 
   // SHA3 core control signals and its response.
   // Sequence: start --> process(multiple) --> get absorbed event --> {run -->} done
@@ -1073,7 +1073,7 @@ module kmac
                                 reg2hw.cfg_shadowed.msg_endianness.q);
 
   // TL Adapter
-  tlul_adapter_sram #(
+  caliptra_tlul_adapter_sram #(
     .SramAw ($clog2(MsgWindowDepth)),
     .SramDw (MsgWindowWidth),
     .Outstanding (1),
