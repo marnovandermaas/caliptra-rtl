@@ -270,15 +270,15 @@ module kmac_msgfifo
   ////////////////
 
   // Flush state known checker
-  `ASSERT(FlushStInValid_A, flush_st inside {FlushIdle, FlushPacker, FlushFifo, FlushClear})
+  `ABR_ASSERT(FlushStInValid_A, flush_st inside {FlushIdle, FlushPacker, FlushFifo, FlushClear})
 
   // Packer done signal is asserted at least one cycle later
-  `ASSERT(PackerDoneDelay_A, $onehot0({process_i, packer_flush_done}))
+  `ABR_ASSERT(PackerDoneDelay_A, $onehot0({process_i, packer_flush_done}))
 
   // process_i not asserted during the flush operation
-  `ASSUME(PackerDoneValid_a, process_i |-> flush_st == FlushIdle)
+  `ABR_ASSUME(PackerDoneValid_a, process_i |-> flush_st == FlushIdle)
 
   // No messages in between `process_i` and `clear_i`
-  `ASSUME(MessageValid_a, fifo_valid_i |-> flush_st == FlushIdle)
+  `ABR_ASSUME(MessageValid_a, fifo_valid_i |-> flush_st == FlushIdle)
 
 endmodule

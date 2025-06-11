@@ -186,17 +186,17 @@ module kmac
   logic [sha3_pkg::NSRegisterSize*8-1:0] ns_prefix;
 
   // NumWordsPrefix from kmac_reg_pkg
-  `ASSERT_INIT(PrefixRegSameToPrefixPkg_A,
+  `ABR_ASSERT_INIT(PrefixRegSameToPrefixPkg_A,
                kmac_reg_pkg::NumWordsPrefix*4 == sha3_pkg::NSRegisterSize)
 
   // NumEntriesMsgFifo from kmac_reg_pkg must match calculated MsgFifoDepth
   // from kmac_pkg.
-  `ASSERT_INIT(NumEntriesRegSameToNumEntriesPkg_A,
+  `ABR_ASSERT_INIT(NumEntriesRegSameToNumEntriesPkg_A,
                kmac_reg_pkg::NumEntriesMsgFifo == kmac_pkg::MsgFifoDepth)
 
   // NumBytesMsgFifoEntry from kmac_reg_pkg must match the MsgWidth calculated
   // in kmac_pkg (although MsgWidth is in bits, so we multiply by 8).
-  `ASSERT_INIT(EntrySizeRegSameToEntrySizePkg_A,
+  `ABR_ASSERT_INIT(EntrySizeRegSameToEntrySizePkg_A,
                kmac_reg_pkg::NumBytesMsgFifoEntry * 8 == kmac_pkg::MsgWidth)
 
   // Output state: this is used to redirect the digest to KeyMgr or Software
@@ -359,7 +359,7 @@ module kmac
   end
 
   // Create a lint error to reduce the risk of accidentally enabling this feature.
-  `ASSERT_STATIC_LINT_ERROR(KmacSecCmdDelayNonDefault, SecCmdDelay == 0)
+  `ABR_ASSERT_STATIC_LINT_ERROR(KmacSecCmdDelayNonDefault, SecCmdDelay == 0)
 
   if (SecCmdDelay > 0) begin : gen_cmd_delay_buf
     // Delay and buffer commands for SCA measurements.
@@ -434,7 +434,7 @@ module kmac
 
   // Command signals
   assign sw_cmd = (cmd_update) ? cmd_q : CmdNone;
-  `ASSERT_KNOWN(KmacCmd_A, sw_cmd)
+  `ABR_ASSERT_KNOWN(KmacCmd_A, sw_cmd)
   always_comb begin
     sha3_start = 1'b 0;
     sha3_run = 1'b 0;
@@ -570,7 +570,7 @@ module kmac
     // Enable unsupported mode & strength combination
     assign cfg_en_unsupported_modestrength = reg2hw.cfg_shadowed.en_unsupported_modestrength.q;
 
-    `ASSERT(EntropyReadyLatched_A, $rose(entropy_ready) |=> !entropy_ready)
+    `ABR_ASSERT(EntropyReadyLatched_A, $rose(entropy_ready) |=> !entropy_ready)
 
   end else begin : gen_no_entropy_mask
     assign wait_timer_prescaler =   '0;
@@ -610,7 +610,7 @@ module kmac
   assign err_processed = reg2hw.cmd.err_processed.q & reg2hw.cmd.err_processed.qe;
 
   // Make sure the field has latch in reg_top
-  `ASSERT(ErrProcessedLatched_A, $rose(err_processed) |=> !err_processed)
+  `ABR_ASSERT(ErrProcessedLatched_A, $rose(err_processed) |=> !err_processed)
 
   // App mode, strength, kmac_en
   if (EnFullKmac) begin : gen_reg_kmac_en
@@ -643,7 +643,7 @@ module kmac
     .intr_o                 (intr_kmac_done_o)
   );
 
-  `ASSERT(Sha3AbsorbedPulse_A,
+  `ABR_ASSERT(Sha3AbsorbedPulse_A,
     $rose(mubi4_test_true_strict(sha3_absorbed)) |=>
       mubi4_test_false_strict(sha3_absorbed))
 
@@ -907,7 +907,7 @@ module kmac
       kmac_st_d = KmacTerminalError;
     end
   end
-  `ASSERT_KNOWN(KmacStKnown_A, kmac_st)
+  `ABR_ASSERT_KNOWN(KmacStKnown_A, kmac_st)
 
   ///////////////
   // Instances //
@@ -1560,7 +1560,7 @@ module kmac
   end
 
   // Below assumes NumAlerts == 2
-  `ASSERT_INIT(NumAlerts2_A, NumAlerts == 2)
+  `ABR_ASSERT_INIT(NumAlerts2_A, NumAlerts == 2)
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
   // break up the combinatorial path for local escalation
@@ -1611,19 +1611,19 @@ module kmac
   ////////////////
 
   // Assert known for output values
-  `ASSERT_KNOWN(KmacDone_A, intr_kmac_done_o)
-  `ASSERT_KNOWN(FifoEmpty_A, intr_fifo_empty_o)
-  `ASSERT_KNOWN(KmacErr_A, intr_kmac_err_o)
-  `ASSERT_KNOWN(TlODValidKnown_A, tl_o.d_valid)
-  `ASSERT_KNOWN(TlOAReadyKnown_A, tl_o.a_ready)
-  `ASSERT_KNOWN(AlertKnownO_A, alert_tx_o)
-  `ASSERT_KNOWN(EnMaskingKnown_A, en_masking_o)
+  `ABR_ASSERT_KNOWN(KmacDone_A, intr_kmac_done_o)
+  `ABR_ASSERT_KNOWN(FifoEmpty_A, intr_fifo_empty_o)
+  `ABR_ASSERT_KNOWN(KmacErr_A, intr_kmac_err_o)
+  `ABR_ASSERT_KNOWN(TlODValidKnown_A, tl_o.d_valid)
+  `ABR_ASSERT_KNOWN(TlOAReadyKnown_A, tl_o.a_ready)
+  `ABR_ASSERT_KNOWN(AlertKnownO_A, alert_tx_o)
+  `ABR_ASSERT_KNOWN(EnMaskingKnown_A, en_masking_o)
 
   // Parameter as desired
-  `ASSERT_INIT(SecretKeyDivideBy32_A, (kmac_pkg::MaxKeyLen % 32) == 0)
+  `ABR_ASSERT_INIT(SecretKeyDivideBy32_A, (kmac_pkg::MaxKeyLen % 32) == 0)
 
   // Command input should be sparse
-  `ASSUME(CmdSparse_M, reg2hw.cmd.cmd.qe |-> reg2hw.cmd.cmd.q inside {CmdStart, CmdProcess,
+  `ABR_ASSUME(CmdSparse_M, reg2hw.cmd.cmd.qe |-> reg2hw.cmd.cmd.q inside {CmdStart, CmdProcess,
                                                                 CmdManualRun,CmdDone, CmdNone})
 
   // redundant counter error
@@ -1684,9 +1684,9 @@ module kmac
 
   // Assertions for the case where EnFullKmac is 0.
   // In this case KMAC is stripped down to only support SHA3, SHAKE and cSHAKE.
-  `ASSERT(StrippedKmacMaskingDisabled_A, EnFullKmac == 0 |-> EnableMasking == 0)
-  `ASSUME(StrippedKmacState_M, EnFullKmac == 0 |-> kmac_st inside
+  `ABR_ASSERT(StrippedKmacMaskingDisabled_A, EnFullKmac == 0 |-> EnableMasking == 0)
+  `ABR_ASSUME(StrippedKmacState_M, EnFullKmac == 0 |-> kmac_st inside
       {KmacIdle, KmacPrefix, KmacMsgFeed, KmacDigest, KmacTerminalError})
-  `ASSUME(StrippedSha3Mode_M, EnFullKmac == 0 |-> app_sha3_mode inside
+  `ABR_ASSUME(StrippedSha3Mode_M, EnFullKmac == 0 |-> app_sha3_mode inside
       {sha3_pkg::Sha3, sha3_pkg::Shake, sha3_pkg::CShake})
 endmodule
