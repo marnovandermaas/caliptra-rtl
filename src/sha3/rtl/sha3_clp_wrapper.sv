@@ -230,39 +230,17 @@ u_sha_inst (
 always_comb begin
   hwif_in.error_reset_b = cptra_pwrgood;
   hwif_in.reset_b = reset_n;
-  hwif_in.SHA_NAME[0].NAME.next = '0; // TODO
-  hwif_in.SHA_NAME[1].NAME.next = '0; // TODO
-  hwif_in.SHA_VERSION[0].VERSION.next = '0; // TODO
-  hwif_in.SHA_VERSION[1].VERSION.next = '0; // TODO
+  hwif_in.SHA3_NAME[0].NAME.next = '0; // TODO
+  hwif_in.SHA3_NAME[1].NAME.next = '0; // TODO
+  hwif_in.SHA3_VERSION[0].VERSION.next = '0; // TODO
+  hwif_in.SHA3_VERSION[1].VERSION.next = '0; // TODO
 
-  hwif_in.intr_block_rf.global_intr_en_r.error_en.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.global_intr_en_r.notif_en.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_intr_en_r.error_intr_en_r.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.notif_intr_en_r.notif_intr_en_r.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_global_intr_r.agg_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.notif_global_intr_r.agg_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.error_internal_intr_r.error0_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.error_internal_intr_r.error1_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.error_internal_intr_r.error2_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.error_internal_intr_r.error3_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.notif_internal_intr_r.notif_cmd_done_sts.hwset = 1'b0; // TODO
   hwif_in.intr_block_rf.notif_internal_intr_r.notif_msg_fifo_empty_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_intr_trig_r.error0_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_intr_trig_r.error1_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_intr_trig_r.error2_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error_intr_trig_r.error3_sts.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.notif_intr_trig_r.notif_cmd_done_trig.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.notif_intr_trig_r.notif_msg_fifo_empty_trig.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error0_intr_count_r.cnt.hwset = '0; // TODO
-  hwif_in.intr_block_rf.error1_intr_count_r.cnt.hwset = '0; // TODO
-  hwif_in.intr_block_rf.error2_intr_count_r.cnt.hwset = '0; // TODO
-  hwif_in.intr_block_rf.error3_intr_count_r.cnt.hwset = '0; // TODO
-  hwif_in.intr_block_rf.notif_cmd_done_intr_count_r.cnt.hwset = '0; // TODO
-  hwif_in.intr_block_rf.error0_intr_count_incr_r.pulse.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error1_intr_count_incr_r.pulse.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error2_intr_count_incr_r.pulse.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.error3_intr_count_incr_r.pulse.hwset = 1'b0; // TODO
-  hwif_in.intr_block_rf.notif_cmd_done_intr_count_incr_r.pulse.hwset = 1'b0; // TODO
 end
 
 endmodule
