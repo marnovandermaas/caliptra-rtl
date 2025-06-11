@@ -23,8 +23,7 @@
 //======================================================================
 
 module sha_clp_wrapper
-  import sha_clp_reg_pkg::*;
-  import sha_clp_reg_pkg::*;
+  import sha3_reg_pkg::*;
   #(
   parameter AHB_DATA_WIDTH = 32,
   parameter AHB_ADDR_WIDTH = 32
@@ -72,8 +71,8 @@ logic [31 : 0] clp_reg_rdata;
 logic [31 : 0] clp_reg_wdata;
 logic [caliptra_tlul_pkg::TL_AW-1 : 0] clp_reg_addr;
 
-sha_clp_reg_pkg::sha_clp_reg__in_t hwif_in;
-sha_clp_reg_pkg::sha_clp_reg__out_t hwif_out;
+sha3_reg__in_t hwif_in;
+sha3_reg__out_t hwif_out;
 
 caliptra_prim_mubi_pkg::mubi4_t sha_idle;
 
@@ -163,7 +162,7 @@ sha3_reg sha_reg_inst (
 
   .s_cpuif_req         (clp_reg_dv),
   .s_cpuif_req_is_wr   (clp_reg_write),
-  .s_cpuif_addr        (clp_reg_addr[SHA_CLP_REG_MIN_ADDR_WIDTH-1:0]),
+  .s_cpuif_addr        (clp_reg_addr[SHA3_REG_MIN_ADDR_WIDTH-1:0]),
   .s_cpuif_wr_data     (clp_reg_wdata),
   .s_cpuif_wr_biten    ('1),
   .s_cpuif_req_stall_wr(),
