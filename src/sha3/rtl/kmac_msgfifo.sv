@@ -9,6 +9,7 @@
 `include "caliptra_prim_assert.sv"
 
 module kmac_msgfifo
+  import caliptra_prim_mubi_pkg::*;
   import kmac_pkg::*;
 #(
   // OutWidth is MsgFIFO data width. prim_packer converts InW to OutW prior to
