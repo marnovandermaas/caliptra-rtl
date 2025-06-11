@@ -349,13 +349,6 @@ module kmac
   // Connecting Register IF to logics //
   //////////////////////////////////////
 
-  // Function-name N and Customization input string S
-  always_comb begin
-    for (int i = 0 ; i < NumWordsPrefix; i++) begin
-      reg_ns_prefix[32*i+:32] = reg2hw.prefix[i].q;
-    end
-  end
-
   // Create a lint error to reduce the risk of accidentally enabling this feature.
   `ABR_ASSERT_STATIC_LINT_ERROR(KmacSecCmdDelayNonDefault, SecCmdDelay == 0)
 
@@ -1125,7 +1118,7 @@ module kmac
     .reg_key_data_i (sw_key_data),
     .reg_key_len_i  (sw_key_len),
 
-    .reg_prefix_i (reg_ns_prefix),
+    .reg_prefix_i (0),
 
     .reg_kmac_en_i         (reg_kmac_en),
     .reg_sha3_mode_i       (reg_sha3_mode),
