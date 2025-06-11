@@ -305,7 +305,6 @@ module kmac
   logic        entropy_seed_update;
   logic [31:0] entropy_seed_data;
 
-  logic [HashCntW-1:0] entropy_hash_threshold;
   logic [HashCntW-1:0] entropy_hash_cnt;
   logic                entropy_hash_clr;
 
@@ -549,8 +548,6 @@ module kmac
     assign entropy_seed_update = reg2hw.entropy_seed.qe;
     assign entropy_seed_data = reg2hw.entropy_seed.q;
 
-    assign entropy_hash_threshold = reg2hw.entropy_refresh_threshold_shadowed.q;
-
     assign hw2reg.entropy_refresh_hash_cnt.de = 1'b 1;
     assign hw2reg.entropy_refresh_hash_cnt.d  = entropy_hash_cnt;
 
@@ -577,8 +574,6 @@ module kmac
     assign entropy_refresh_req  = 1'b0;
     assign entropy_seed_update  = 1'b0;
     assign entropy_seed_data    =   '0;
-
-    assign entropy_hash_threshold = reg2hw.entropy_refresh_threshold_shadowed.q;
 
     assign entropy_hash_clr     =            1'b0;
     assign entropy_ready        =            1'b0;
@@ -1373,7 +1368,7 @@ module kmac
       // Status
       .hash_cnt_o       (entropy_hash_cnt),
       .hash_cnt_clr_i   (entropy_hash_clr),
-      .hash_threshold_i (entropy_hash_threshold),
+      .hash_threshold_i (0),
 
       .entropy_configured_o (entropy_configured),
 
@@ -1417,7 +1412,7 @@ module kmac
     assign unused_entropy_refresh_req = entropy_refresh_req;
 
     logic unused_entropy_hash;
-    assign unused_entropy_hash = ^{entropy_hash_clr, entropy_hash_threshold};
+    assign unused_entropy_hash = ^entropy_hash_clr;
     assign entropy_hash_cnt = '0;
 
     assign entropy_err = '{valid: 1'b 0, code: ErrNone, info: '0};
