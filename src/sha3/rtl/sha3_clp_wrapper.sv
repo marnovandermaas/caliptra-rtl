@@ -201,7 +201,8 @@ u_sha_inst (
   .alert_tx_o                     (),
 
   // KeyMgr sideload (secret key) interface
-  input keymgr_pkg::hw_key_req_t  keymgr_key_i,
+  //TODO connect
+  .keymgr_key_i                   (),
 
   // KeyMgr KDF data path
   .app_i                          ('0),
