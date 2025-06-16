@@ -12,10 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-#include "caliptra_defines.h"
 #include "caliptra_isr.h"
-#include <string.h>
-#include <stdint.h>
 #include "printf.h"
 #include "sha3.h"
 
@@ -116,13 +113,13 @@ void run_sha3_test(const void *kmac) {
       while(1);
     }
     dif_kmac_squeeze(kmac, &operation_state, out, test.digest_len,
-                     /*processed=*/NULL, /*capacity=*/NULL));
+                     /*processed=*/NULL, /*capacity=*/NULL);
     dif_kmac_end(kmac, &operation_state);
 
     // Wait for the hardware engine to actually finish. On FPGA, it may take
     // a while until the DONE command gets actually executed (see SecCmdDelay
     // SystemVerilog parameter).
-    dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_BIT);
+    dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_INDEX);
 
     for (int j = 0; j < test.digest_len; ++j) {
       if (out[j] != test.digest[j]) {
@@ -144,8 +141,8 @@ void main() {
   // Call interrupt init
   init_interrupts();
 
-  VPRINTF("Running SHA3 tests.\n");
-  run_sha3_test();
+  VPRINTF(LOW, "Running SHA3 tests.\n");
+  run_sha3_test((void *) 0x10040000);
 
   // Write 0xff to STDOUT for TB to terminate test.
   SEND_STDOUT_CTRL( 0xff);

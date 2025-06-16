@@ -1,10 +1,22 @@
 #include "sha3.h"
-#include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "printf.h"
 
-void dif_kmac_poll_status(const void *kmac, uint32_t flag) {
+/**
+ * Calculate the rate (r) in bits from the given security level.
+ *
+ * @param security_level Security level in bits.
+ * @returns Rate in bits.
+ */
+static uint32_t calculate_rate_bits(uint32_t security_level) {
+  // Formula for the rate in bits is:
+  //
+  //   r = 1600 - c
+  //
+  // Where c is the capacity (the security level in bits multiplied by two).
+  return 1600 - 2 * security_level;
+}
+
+void dif_kmac_poll_status(const uintptr_t kmac, uint32_t flag) {
   while (1) {
     uint32_t reg = lsu_read_32(kmac + KMAC_STATUS_REG_OFFSET);
     if (reg & (0x1u << flag)) {
@@ -15,10 +27,10 @@ void dif_kmac_poll_status(const void *kmac, uint32_t flag) {
 }
 
 void dif_kmac_mode_sha3_start(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     dif_kmac_mode_sha3_t mode) {
-  if (kmac == NULL || operation_state == NULL) {
-    printf("dif_kmac_mode_sha3_start: ERROR kmac or operation_state null.\n");
+  if (kmac == 0 || operation_state == 0) {
+    printf("dif_kmac_mode_sha3_start: ERROR kmac or operation_state NULL.\n");
     while(1);
     return;
   }
@@ -82,7 +94,7 @@ void dif_kmac_mode_sha3_start(
 }
 
 static void msg_fifo_write(
-    const void *kmac, const unsigned char *data, size_t len) {
+    const uintptr_t kmac, const unsigned char *data, size_t len) {
   // Copy message using aligned word sized loads and stores where possible to
   // improve performance. Note: the parts of the message copied a byte at a time
   // will not be byte swapped in big-endian mode.
@@ -104,14 +116,14 @@ static void msg_fifo_write(
 }
 
 void dif_kmac_absorb(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     const void *msg, size_t len, size_t *processed) {
   // Set the number of bytes processed to 0.
-  if (processed != NULL) {
+  if (processed != 0) {
     *processed = 0;
   }
 
-  if (kmac == NULL || operation_state == NULL || (msg == NULL && len != 0)) {
+  if (kmac == 0 || operation_state == 0 || (msg == 0 && len != 0)) {
     printf("dif_kmac_absorb: ERROR one of function arguments is null\n");
     while (1);
     return;
@@ -154,7 +166,7 @@ void dif_kmac_absorb(
 
     // If `processed` is non-null, do not continue after the first iteration;
     // return the number of bytes written and `kDifKmacIncomplete`.
-    if (processed != NULL) {
+    if (processed != 0) {
       *processed = write_len;
       break;
     }
@@ -162,16 +174,16 @@ void dif_kmac_absorb(
 }
 
 void dif_kmac_squeeze(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     uint32_t *out, size_t len, size_t *processed, uint32_t *capacity) {
-  if (kmac == NULL || operation_state == NULL || (out == NULL && len != 0)) {
+  if (kmac == 0 || operation_state == 0 || (out == 0 && len != 0)) {
     printf("dif_kmac_squeeze: ERROR arguments may not be NULL.\n");
     while (1);
     return;
   }
 
   // Set `processed` to 0 so we can return early without setting it again.
-  if (processed != NULL) {
+  if (processed != 0) {
     *processed = 0;
   }
 
@@ -256,13 +268,13 @@ void dif_kmac_squeeze(
     }
     operation_state->offset += n;
     len -= n;
-    if (processed != NULL) {
+    if (processed != 0) {
       *processed += n;
     }
     // Read also the capacity of the state, if non-NULL buffer is given.
     // This is only useful for testing that capacity is not leaked during
     // sideloaded KMAC operations.
-    if (capacity != NULL) {
+    if (capacity != 0) {
       uint32_t capacity_offset =
           KMAC_STATE_REG_OFFSET +
           operation_state->r * sizeof(uint32_t);
@@ -278,8 +290,8 @@ void dif_kmac_squeeze(
 }
 
 void dif_kmac_end(
-    const void *kmac, dif_kmac_operation_state_t *operation_state) {
-  if (kmac == NULL || operation_state == NULL) {
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state) {
+  if (kmac == 0 || operation_state == 0) {
     printf("dif_kmac_end: ERROR arguments may not be NULL.\n");
     while (1);
     return;

@@ -5,6 +5,8 @@
 #include "caliptra_defines.h"
 #include "riscv_hw_if.h"
 #include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
 
 // Parameter definitions.
 #define KMAC_PARAM_NUM_ENTRIES_MSG_FIFO (10)
@@ -189,7 +191,7 @@ typedef struct dif_kmac_operation_state {
  * @param flag the
  * @return The result of the operation.
  */
-void dif_kmac_poll_status(const void *kmac, uint32_t flag);
+void dif_kmac_poll_status(const uintptr_t kmac, uint32_t flag);
 
 /**
  * Start a SHA-3 operation.
@@ -204,7 +206,7 @@ void dif_kmac_poll_status(const void *kmac, uint32_t flag);
  * @return The result of the operation.
  */
 void dif_kmac_mode_sha3_start(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     dif_kmac_mode_sha3_t mode);
 
 /**
@@ -230,7 +232,7 @@ void dif_kmac_mode_sha3_start(
  * @preturn The result of the operation.
  */
 void dif_kmac_absorb(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     const void *msg, size_t len, size_t *processed);
 
 
@@ -269,7 +271,7 @@ void dif_kmac_absorb(
  * @preturn The result of the operation.
  */
 void dif_kmac_squeeze(
-    const void *kmac, dif_kmac_operation_state_t *operation_state,
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state,
     uint32_t *out, size_t len, size_t *processed, uint32_t *capacity);
 
 /**
@@ -281,6 +283,6 @@ void dif_kmac_squeeze(
  * @return The result of the operation.
  */
 void dif_kmac_end(
-    const void *kmac, dif_kmac_operation_state_t *operation_state);
+    const uintptr_t kmac, dif_kmac_operation_state_t *operation_state);
 
 #endif // SHA3_KMAC_HEADER
