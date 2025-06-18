@@ -134,7 +134,7 @@ module kmac_reg_top (
   // Create steering logic
   always_comb begin
     reg_steer =
-        tl_i.a_address[AW-1:0] inside {[512:1023]} ? 2'd0 :
+        tl_i.a_address[AW-1:0] inside {[1024:1535]} ? 2'd0 :
         tl_i.a_address[AW-1:0] inside {[2048:4095]} ? 2'd1 :
         // Default set to register
         2'd2;
