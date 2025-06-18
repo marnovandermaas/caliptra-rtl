@@ -71,7 +71,7 @@ void dif_kmac_mode_sha3_start(
 
   // Hardware must be idle to start an operation.
   uint32_t kmac_status = lsu_read_32(kmac + KMAC_STATUS_REG_OFFSET);
-  if (kmac_status & (0x1U << KMAC_STATUS_SHA3_IDLE_INDEX)) {
+  if ((kmac_status & (0x1U << KMAC_STATUS_SHA3_IDLE_INDEX)) == 0) {
     printf("dif_kmac_sha3_start: ERROR hardware must be idle.\n");
     while(1);
     return;
@@ -80,11 +80,20 @@ void dif_kmac_mode_sha3_start(
   operation_state->squeezing = false;
   operation_state->append_d = false;
 
+  uint32_t config_reg = lsu_read_32(kmac + KMAC_CFG_SHADOWED_REG_OFFSET);
+  printf("dif_kmac_mode_sha3_start: config before write 0x%x\n", config_reg);
+  config_reg |= (kstrength << KMAC_CFG_SHADOWED_KSTRENGTH_INDEX) |
+                        (KMAC_CFG_SHADOWED_MODE_VALUE_SHA3 << KMAC_CFG_SHADOWED_MODE_INDEX);
+  printf("dif_kmac_mode_sha3_start: setting strength %d and mode %d in config 0x%x\n",
+         kstrength, KMAC_CFG_SHADOWED_MODE_VALUE_SHA3, config_reg);
   // Configure SHA-3 mode with the given strength.
-  lsu_write_32(kmac + KMAC_CFG_SHADOWED_REG_OFFSET,
-               (kstrength << KMAC_CFG_SHADOWED_KSTRENGTH_INDEX) |
-               (KMAC_CFG_SHADOWED_MODE_VALUE_SHA3 << KMAC_CFG_SHADOWED_MODE_INDEX));
+  // Must be written twice because it is a shadow register.
+  lsu_write_32(kmac + KMAC_CFG_SHADOWED_REG_OFFSET, config_reg);
+  lsu_write_32(kmac + KMAC_CFG_SHADOWED_REG_OFFSET, config_reg);
+  config_reg = lsu_read_32(kmac + KMAC_CFG_SHADOWED_REG_OFFSET);
+  printf("dif_kmac_mode_sha3_start: read config 0x%x\n", config_reg);
 
+  printf("dif_kmac_mode_sha3_start: setting command\n");
   // Issue start command.
   lsu_write_32(kmac + KMAC_CMD_REG_OFFSET,
                (KMAC_CMD_CMD_VALUE_START << KMAC_CMD_CMD_INDEX));
@@ -138,7 +147,7 @@ void dif_kmac_absorb(
 
   // Poll until the status register is in the 'absorb' state.
   uint32_t kmac_status = lsu_read_32(kmac + KMAC_STATUS_REG_OFFSET);
-  if (kmac_status & (0x1U << KMAC_STATUS_SHA3_ABSORB_INDEX)) {
+  if ((kmac_status & (0x1U << KMAC_STATUS_SHA3_ABSORB_INDEX)) == 0) {
     printf("dif_kmac_absorb: ERROR hardware must be absorbing.\n");
     while(1);
     return;

@@ -96,7 +96,7 @@ const sha3_test_t sha3_tests[] = {
 /**
  * Run SHA-3 test cases using single blocking absorb/squeeze operations.
  */
-void run_sha3_test(const void *kmac) {
+void run_sha3_test(uintptr_t kmac) {
   dif_kmac_operation_state_t operation_state;
   //TODO do all iterations.
   for (int i = 0; i < 1 /*ARRAYSIZE(sha3_tests)*/; ++i) {
@@ -142,7 +142,7 @@ void main() {
   init_interrupts();
 
   VPRINTF(LOW, "Running SHA3 tests.\n");
-  run_sha3_test((void *) 0x10040000);
+  run_sha3_test(0x10040000);
 
   // Write 0xff to STDOUT for TB to terminate test.
   SEND_STDOUT_CTRL( 0xff);
