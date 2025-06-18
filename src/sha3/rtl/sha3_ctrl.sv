@@ -212,7 +212,7 @@ u_sha_inst (
   .entropy_i                      ('0),
 
   // Life cycle
-  .lc_escalate_en_i               ('0),
+  .lc_escalate_en_i               (lc_ctrl_pkg::Off),
 
   // interrupts
   .intr_kmac_done_o               (),
