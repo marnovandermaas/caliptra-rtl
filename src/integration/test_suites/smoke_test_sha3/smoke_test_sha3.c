@@ -99,7 +99,7 @@ const sha3_test_t sha3_tests[] = {
 void run_sha3_test(uintptr_t kmac) {
   dif_kmac_operation_state_t operation_state;
   //TODO do all iterations.
-  for (int i = 0; i < 1 /*ARRAYSIZE(sha3_tests)*/; ++i) {
+  for (int i = 0; i < sizeof(sha3_tests) / sizeof(sha3_test_t); ++i) {
     sha3_test_t test = sha3_tests[i];
 
     dif_kmac_mode_sha3_start(kmac, &operation_state, test.mode);
