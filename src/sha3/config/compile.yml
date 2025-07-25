@@ -5,11 +5,11 @@ requires:
   - libs
   - caliptra_prim
   - caliptra_tlul_pkg
+  - kmac_pkg
 targets:
   rtl:
     directories: [$COMPILE_ROOT/rtl]
     files:
-      - $COMPILE_ROOT/rtl/sha3_pkg.sv
       - $COMPILE_ROOT/rtl/kmac_reg_pkg.sv
       - $COMPILE_ROOT/rtl/sha3_reg_pkg.sv
       - $COMPILE_ROOT/rtl/keccak_2share.sv
