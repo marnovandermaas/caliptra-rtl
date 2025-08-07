@@ -472,30 +472,49 @@ const uint32_t mldsa_verify_res [] = {
 };
 
 #define EXTERNAL_MU_HEADER_LEN (2)
-void check_external_mu(uintptr_t kmac, const char *message, const size_t message_len, const uint32_t *expected_external_mu) {
-  const size_t digest_len = 16; // External mu is always 64 Bytes
-  uint32_t mu[digest_len];
-  dif_kmac_operation_state_t operation_state;
-  const char message_header[EXTERNAL_MU_HEADER_LEN] = "\x00\x00";
+void check_external_mu(uintptr_t kmac, const char *message, const size_t message_len, const char *public_key, const uint32_t *expected_external_mu) {
+    uint32_t mu[MLDSA87_EXTERNAL_MU_SIZE];
+    uint32_t public_key_hash[MLDSA87_EXTERNAL_MU_SIZE];
+    dif_kmac_operation_state_t operation_state;
+    const char message_header[EXTERNAL_MU_HEADER_LEN] = "\x00\x00";
+    char public_key_hash_str[MLDSA87_EXTERNAL_MU_SIZE*4];
 
-  dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256);
-  dif_kmac_absorb(kmac, &operation_state, message_header, EXTERNAL_MU_HEADER_LEN, NULL);
-  dif_kmac_absorb(kmac, &operation_state, message, message_len, NULL);
-  dif_kmac_squeeze(kmac, &operation_state, mu, digest_len, /*processed=*/NULL, /*capacity=*/NULL);
-  dif_kmac_end(kmac, &operation_state);
-  // Wait for the hardware engine to actually finish. On FPGA, it may take
-  // a while until the DONE command gets actually executed (see SecCmdDelay
-  // SystemVerilog parameter).
-  dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_INDEX);
+    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256);
+    dif_kmac_absorb(kmac, &operation_state, public_key, MLDSA87_PUBKEY_SIZE*4, NULL);
+    dif_kmac_squeeze(kmac, &operation_state, public_key_hash, MLDSA87_EXTERNAL_MU_SIZE, /*processed=*/NULL, /*capacity=*/NULL);
+    dif_kmac_end(kmac, &operation_state);
+    // Wait for the hardware engine to actually finish. On FPGA, it may take
+    // a while until the DONE command gets actually executed (see SecCmdDelay
+    // SystemVerilog parameter).
+    dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_INDEX);
 
-  for (int i = 0; i < digest_len; ++i) {
-    if (mu[i] != expected_external_mu[i]) {
-      printf("External mu: mismatch at %d got=0x%x want=0x%x", i, mu[i], expected_external_mu[i]);
-      SEND_STDOUT_CTRL(0x1); // Terminate test with failure.
-      while (1);
-      return;
+    for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE; i++) {
+        uint32_t word = public_key_hash[i];
+        for (int j = 0; j < 4; j++) {
+            public_key_hash_str[i*4 + j] = (char) (word & 0xFF);
+            word >>= 8;
+        }
     }
-  }
+
+    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256);
+    dif_kmac_absorb(kmac, &operation_state, public_key_hash_str, MLDSA87_EXTERNAL_MU_SIZE*4, NULL);
+    dif_kmac_absorb(kmac, &operation_state, message_header, EXTERNAL_MU_HEADER_LEN, NULL);
+    dif_kmac_absorb(kmac, &operation_state, message, message_len, NULL);
+    dif_kmac_squeeze(kmac, &operation_state, mu, MLDSA87_EXTERNAL_MU_SIZE, /*processed=*/NULL, /*capacity=*/NULL);
+    dif_kmac_end(kmac, &operation_state);
+    // Wait for the hardware engine to actually finish. On FPGA, it may take
+    // a while until the DONE command gets actually executed (see SecCmdDelay
+    // SystemVerilog parameter).
+    dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_INDEX);
+
+    for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE; ++i) {
+        if (mu[i] != expected_external_mu[i]) {
+            printf("External mu: mismatch at %d got=0x%x want=0x%x", i, mu[i], expected_external_mu[i]);
+            SEND_STDOUT_CTRL(0x1); // Terminate test with failure.
+            while (1);
+            return;
+        }
+    }
 }
 
 void main() {
@@ -508,6 +527,7 @@ void main() {
     mldsa_io seed;
     uint32_t sign_rnd[MLDSA87_SIGN_RND_SIZE], entropy[MLDSA87_ENTROPY_SIZE], privkey[MLDSA87_PRIVKEY_SIZE], pubkey[MLDSA87_PUBKEY_SIZE], msg[MLDSA87_MSG_SIZE], sign[MLDSA87_SIGN_SIZE], verify_res[MLDSA_VERIFY_RES_SIZE], external_mu[MLDSA87_EXTERNAL_MU_SIZE];
     char msg_char[MLDSA87_MSG_SIZE*4];
+    char pubkey_char[MLDSA87_PUBKEY_SIZE*4];
 
     seed.kv_intf = FALSE;
     for (int i = 0; i < MLDSA87_SEED_SIZE; i++)
@@ -534,8 +554,14 @@ void main() {
     for (int i = 0; i < MLDSA87_PRIVKEY_SIZE; i++)
         privkey[i] = mldsa_privkey[MLDSA87_PRIVKEY_SIZE-1-i];
 
-    for (int i = 0; i < MLDSA87_PUBKEY_SIZE; i++)
+    for (int i = 0; i < MLDSA87_PUBKEY_SIZE; i++) {
         pubkey[i] = mldsa_pubkey[MLDSA87_PUBKEY_SIZE-1-i];
+        uint32_t word = pubkey[i];
+        for (int j = 0; j < 4; j++) {
+            pubkey_char[i*4 + j] = (char) (word & 0xFF);
+            word >>= 8;
+        }
+    }
 
     for (int i = 0; i < MLDSA87_SIGN_SIZE; i++)
         sign[i] = mldsa_sign[MLDSA87_SIGN_SIZE-1-i];
