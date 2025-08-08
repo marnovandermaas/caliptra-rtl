@@ -488,7 +488,7 @@ void check_external_mu(uintptr_t kmac, const char *message, const size_t message
     // SystemVerilog parameter).
     dif_kmac_poll_status(kmac, KMAC_STATUS_SHA3_IDLE_INDEX);
 
-    for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE; i++) {
+    for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE; ++i) {
         uint32_t word = public_key_hash[i];
         for (int j = 0; j < 4; j++) {
             public_key_hash_str[i*4 + j] = (char) (word & 0xFF);
@@ -497,9 +497,28 @@ void check_external_mu(uintptr_t kmac, const char *message, const size_t message
     }
 
     dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256);
+
+    printf("check_external_mu: public key hash string\n\t0x");
+    for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE*4; ++i) {
+        printf("%02x.", public_key_hash_str[i]);
+    }
+    printf("\n");
     dif_kmac_absorb(kmac, &operation_state, public_key_hash_str, MLDSA87_EXTERNAL_MU_SIZE*4, NULL);
+
+    printf("check_external_mu: message header\n\t0x");
+    for (int i = 0; i < EXTERNAL_MU_HEADER_LEN; ++i) {
+        printf("%02x.", message_header[i]);
+    }
+    printf("\n");
     dif_kmac_absorb(kmac, &operation_state, message_header, EXTERNAL_MU_HEADER_LEN, NULL);
+
+    printf("check_external_mu: message\n\t0x");
+    for (int i = 0; i < message_len; ++i) {
+        printf("%02x.", message[i]);
+    }
+    printf("\n");
     dif_kmac_absorb(kmac, &operation_state, message, message_len, NULL);
+
     dif_kmac_squeeze(kmac, &operation_state, mu, MLDSA87_EXTERNAL_MU_SIZE, /*processed=*/NULL, /*capacity=*/NULL);
     dif_kmac_end(kmac, &operation_state);
     // Wait for the hardware engine to actually finish. On FPGA, it may take
