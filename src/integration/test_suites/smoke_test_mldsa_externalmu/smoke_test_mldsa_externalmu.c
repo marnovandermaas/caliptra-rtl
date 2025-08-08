@@ -479,21 +479,21 @@ void check_external_mu(uintptr_t kmac, const char *message, const size_t message
 
     printf("check_external_mu: public key hash string\n\t0x");
     for (int i = 0; i < MLDSA87_EXTERNAL_MU_SIZE*4; ++i) {
-        printf("%02x", public_key_hash_str[i]);
+        printf("%02x.", public_key_hash_str[i]);
     }
     printf("\n");
     dif_kmac_absorb(kmac, &operation_state, public_key_hash_str, MLDSA87_EXTERNAL_MU_SIZE*4, NULL);
 
     printf("check_external_mu: message header\n\t0x");
     for (int i = 0; i < EXTERNAL_MU_HEADER_LEN; ++i) {
-        printf("%02x", message_header[i]);
+        printf("%02x.", message_header[i]);
     }
     printf("\n");
     dif_kmac_absorb(kmac, &operation_state, message_header, EXTERNAL_MU_HEADER_LEN, NULL);
 
     printf("check_external_mu: message\n\t0x");
     for (int i = 0; i < message_len; ++i) {
-        printf("%02x", message[i]);
+        printf("%02x.", message[i]);
     }
     printf("\n");
     dif_kmac_absorb(kmac, &operation_state, message, message_len, NULL);
