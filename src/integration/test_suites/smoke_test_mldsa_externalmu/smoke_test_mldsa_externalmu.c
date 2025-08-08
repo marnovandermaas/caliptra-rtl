@@ -588,7 +588,7 @@ void main() {
     for (int i = 0; i < MLDSA_VERIFY_RES_SIZE; i++)
         verify_res[i] = mldsa_verify_res[MLDSA_VERIFY_RES_SIZE-1-i];
 
-    check_external_mu(CLP_SHA3_BASE_ADDR, msg_char, MLDSA87_MSG_SIZE*4, external_mu);
+    check_external_mu(CLP_SHA3_BASE_ADDR, msg_char, MLDSA87_MSG_SIZE*4, pubkey_char, external_mu);
 
     mldsa_keygen_signing_external_mu_flow(seed, external_mu, sign_rnd, entropy, sign);
     mldsa_zeroize();
