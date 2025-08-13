@@ -209,7 +209,9 @@ kmac
 #(
   .EnMasking                      (0),
   .EnFullKmac                     (0),
-  .SwKeyMasked                    (0)
+  .SwKeyMasked                    (0),
+  .NumAppIntf                     (2),
+  .AppCfg                         ('{kmac_pkg::AppCfgKeyMgrStripped,kmac_pkg::AppCfgKeyMgrStripped})
 )
 u_sha_inst (
   .clk_i                          (clk),
