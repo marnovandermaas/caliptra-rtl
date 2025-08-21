@@ -467,7 +467,7 @@ void check_external_mu(uintptr_t kmac, const uint32_t *message, const size_t mes
     printf("External mu: Checking pre-computed value with SHA3 engine.\n");
 
     // Calculate `tr` which is the 64-bit SHAKE hash of the public key.
-    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256, kDifKmacMsgEndiannessBig);
+    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256, kDifKmacMsgEndiannessLittle);
     dif_kmac_absorb(kmac, &operation_state, public_key, MLDSA87_PUBKEY_SIZE*4, NULL);
     dif_kmac_squeeze(kmac, &operation_state, public_key_hash, MLDSA87_PUBKEY_HASH_SIZE, /*processed=*/NULL, /*capacity=*/NULL);
     dif_kmac_end(kmac, &operation_state);
@@ -478,7 +478,7 @@ void check_external_mu(uintptr_t kmac, const uint32_t *message, const size_t mes
 
     // Calculate External mu which is a 64-bit SHAKE hash of the formatted message `tr ^ M'`.
     // `M' = 0 ^ 0 ^ M` where ^ is concatenation is M is the message.
-    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256, kDifKmacMsgEndiannessBig);
+    dif_kmac_mode_shake_start(kmac, &operation_state, kDifKmacModeShakeLen256, kDifKmacMsgEndiannessLittle);
     // Absorb the public key hash digest.
     dif_kmac_absorb(kmac, &operation_state, public_key_hash, MLDSA87_PUBKEY_HASH_SIZE*4, NULL);
     // Absorb the formatted message.
