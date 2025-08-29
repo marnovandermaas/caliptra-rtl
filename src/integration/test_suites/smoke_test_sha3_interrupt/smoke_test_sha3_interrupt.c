@@ -29,6 +29,7 @@ volatile uint32_t  intr_count       = 0;
 volatile caliptra_intr_received_s cptra_intr_rcv = {0};
 
 void main() {
+    dif_kmac_operation_state_t operation_state;
 
     // Entry message
     VPRINTF(LOW, "----------------------------------\n");
@@ -38,15 +39,20 @@ void main() {
     // Call interrupt init
     init_interrupts();
 
-    // Enable FIFO empty interrupt
-    lsu_write_32(CLP_KMAC_INTR_ENABLE, KMAC_INTR_ENABLE_FIFO_EMPTY_MASK);
+    // Enable KMAC done interrupt
+    lsu_write_32(CLP_KMAC_INTR_ENABLE, KMAC_INTR_ENABLE_KMAC_DONE_MASK);
 
-    if (cptra_intr_rcv.sha3_notif == KMAC_INTR_ENABLE_FIFO_EMPTY_MASK) {
+    // Get the SHA3 block to finish the absorbing state.
+    dif_kmac_mode_sha3_start(CLP_KMAC_BASE_ADDR, &operation_state, kDifKmacModeSha3Len224);
+    dif_kmac_absorb(CLP_KMAC_BASE_ADDR, &operation_state, NULL, 0, NULL);
+
+    if (cptra_intr_rcv.sha3_notif == KMAC_INTR_ENABLE_KMAC_DONE_MASK) {
         VPRINTF(LOW, "Successfully received interrupt.\n");
         // Write 0xff to STDOUT for TB to terminate test.
         SEND_STDOUT_CTRL(0xff);
         while (1);
     } else {
+        VPRINTF(LOW, "ERROR: expected KMAC DONE interrupt.\n");
         // Write 0x1 to STDOUT for TB to fail test.
         SEND_STDOUT_CTRL(0x1);
         while (1);
