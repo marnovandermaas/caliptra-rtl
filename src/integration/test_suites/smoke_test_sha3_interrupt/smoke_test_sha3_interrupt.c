@@ -45,7 +45,7 @@ void main() {
 
     // Get the SHA3 block to finish the absorbing state.
     dif_kmac_mode_sha3_start(CLP_KMAC_BASE_ADDR, &operation_state, kDifKmacModeSha3Len224);
-    dif_kmac_absorb(CLP_KMAC_BASE_ADDR, &operation_state, NULL, 0, NULL);
+    dif_kmac_absorb(CLP_KMAC_BASE_ADDR, &operation_state, "OpenTitan", 9, NULL);
     dif_kmac_squeeze(CLP_KMAC_BASE_ADDR, &operation_state, &digest, sizeof(uint32_t), /*processed=*/NULL, /*capacity=*/NULL);
     dif_kmac_end(kmac, &operation_state);
 
