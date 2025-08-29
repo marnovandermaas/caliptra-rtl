@@ -47,7 +47,7 @@ void main() {
     dif_kmac_mode_sha3_start(CLP_KMAC_BASE_ADDR, &operation_state, kDifKmacModeSha3Len224);
     dif_kmac_absorb(CLP_KMAC_BASE_ADDR, &operation_state, "OpenTitan", 9, NULL);
     dif_kmac_squeeze(CLP_KMAC_BASE_ADDR, &operation_state, &digest, sizeof(uint32_t), /*processed=*/NULL, /*capacity=*/NULL);
-    dif_kmac_end(kmac, &operation_state);
+    dif_kmac_end(CLP_KMAC_BASE_ADDR, &operation_state);
 
     if (cptra_intr_rcv.sha3_notif == KMAC_INTR_ENABLE_KMAC_DONE_MASK) {
         VPRINTF(LOW, "Successfully received interrupt.\n");
