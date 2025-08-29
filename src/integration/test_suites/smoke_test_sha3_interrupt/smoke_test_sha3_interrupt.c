@@ -38,8 +38,17 @@ void main() {
     // Call interrupt init
     init_interrupts();
 
+    // Enable FIFO empty interrupt
+    lsu_write_32(CLP_KMAC_INTR_ENABLE, KMAC_INTR_ENABLE_FIFO_EMPTY_MASK);
 
-    // Write 0xff to STDOUT for TB to terminate test.
-    SEND_STDOUT_CTRL(0xff);
-    while (1);
+    if (cptra_intr_rcv.sha3_notif == KMAC_INTR_ENABLE_FIFO_EMPTY_MASK) {
+        VPRINTF(LOW, "Successfully received interrupt.\n");
+        // Write 0xff to STDOUT for TB to terminate test.
+        SEND_STDOUT_CTRL(0xff);
+        while (1);
+    } else {
+        // Write 0x1 to STDOUT for TB to fail test.
+        SEND_STDOUT_CTRL(0x1);
+        while (1);
+    }
 }

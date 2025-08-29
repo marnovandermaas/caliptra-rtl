@@ -45,6 +45,8 @@ typedef struct {
     uint32_t sha512_notif;
     uint32_t sha256_error;
     uint32_t sha256_notif;
+    uint32_t sha3_error;
+    uint32_t sha3_notif;
     uint32_t soc_ifc_error;
     uint32_t soc_ifc_notif;
     uint32_t sha512_acc_error;
@@ -155,6 +157,29 @@ inline void service_sha256_notif_intr() {
     }
 }
 
+inline void service_sha3_error_intr() {
+    cptra_intr_rcv.sha3_error = 1;
+}
+
+inline void service_sha3_notif_intr() {
+    uint32_t * reg = (uint32_t *) (CLP_SHA256_REG_INTR_BLOCK_RF_NOTIF_INTERNAL_INTR_R);
+    uint32_t sts = *reg;
+    /* Write 1 to Clear the pending interrupt */
+    if (sts & KMAC_INTR_STATE_KMAC_DONE_MASK) {
+        *reg = KMAC_INTR_STATE_KMAC_DONE_MASK;
+        cptra_intr_rcv.sha3_notif |= KMAC_INTR_STATE_KMAC_DONE_MASK;
+    } else if (sts & KMAC_INTR_STATE_FIFO_EMPTY_MASK) {
+        // Cannot be cleared.
+        cptra_intr_rcv.sha3_notif |= KMAC_INTR_STATE_FIFO_EMPTY_MASK;
+    } else if (sts & KMAC_INTR_STATE_KMAC_ERR_MASK) {
+        *reg = KMAC_INTR_STATE_KMAC_ERR_MASK;
+        cptra_intr_rcv.sha3_notif |= KMAC_INTR_STATE_KMAC_ERR_MASK;
+    } else {
+        VPRINTF(ERROR,"bad sha3_notif_intr sts:%x\n", sts);
+        SEND_STDOUT_CTRL(0x1);
+        while(1);
+    }
+}
 
 inline void service_soc_ifc_error_intr() {
     uint32_t * reg = (uint32_t *) (CLP_SOC_IFC_REG_INTR_BLOCK_RF_ERROR_INTERNAL_INTR_R);
