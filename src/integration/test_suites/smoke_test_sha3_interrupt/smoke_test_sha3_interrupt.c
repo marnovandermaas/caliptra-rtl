@@ -42,6 +42,14 @@ void main() {
 
     // Enable KMAC done interrupt
     lsu_write_32(CLP_KMAC_INTR_ENABLE, KMAC_INTR_ENABLE_KMAC_DONE_MASK);
+    lsu_write_32(CLP_SHA3_INTR_BLOCK_RF_GLOBAL_INTR_EN_R,
+                 SHA3_INTR_BLOCK_RF_GLOBAL_INTR_EN_R_ERROR_EN_MASK |
+                 SHA3_INTR_BLOCK_RF_GLOBAL_INTR_EN_R_NOTIF_EN_MASK);
+    lsu_write_32(CLP_SHA3_INTR_BLOCK_RF_ERROR_INTR_EN_R,
+                 SHA3_INTR_BLOCK_RF_ERROR_INTR_EN_R_SHA3_ERROR_EN_MASK);
+    lsu_write_32(CLP_SHA3_INTR_BLOCK_RF_NOTIF_INTR_EN_R,
+                 SHA3_INTR_BLOCK_RF_NOTIF_INTR_EN_R_NOTIF_CMD_DONE_EN_MASK |
+                 SHA3_INTR_BLOCK_RF_NOTIF_INTR_EN_R_NOTIF_MSG_FIFO_EMPTY_EN_MASK);
 
     // Get the SHA3 block to finish the absorbing state.
     dif_kmac_mode_sha3_start(CLP_KMAC_BASE_ADDR, &operation_state, kDifKmacModeSha3Len224);
