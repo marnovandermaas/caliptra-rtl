@@ -1169,6 +1169,7 @@ module caliptra_top_tb_services
             mldsa_keygen_signing <= 'b0;
         end
         else if ((WriteData[7:0] == 8'hd9) && mailbox_write) begin
+            $display("Received d9 command");
             mldsa_keygen <= 'b1;
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
@@ -1176,24 +1177,28 @@ module caliptra_top_tb_services
         end
         //unlock debug mode
         else if ((WriteData[7:0] == 8'hda) && mailbox_write) begin
+            $display("Received da command");
             mldsa_keygen <= 'b0;
             mldsa_signing <= 'b1;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b0;
         end
         else if((WriteData[7:0] == 8'hdb) && mailbox_write) begin
+            $display("Received db command");
             mldsa_keygen <= 'b0;
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b1;
             mldsa_keygen_signing <= 'b0;
         end
         else if((WriteData[7:0] == 8'hdc) && mailbox_write) begin
+            $display("Received dc command");
             mldsa_keygen <= 'b0;
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b1;
         end
         else if ((WriteData[7:0] == 8'hd8) && mailbox_write) begin
+            $display("Received d8 command");
             mldsa_keygen <= 'b0;
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
@@ -1207,6 +1212,7 @@ module caliptra_top_tb_services
         for (mldsa_dword = 0; mldsa_dword < SEED_NUM_DWORDS; mldsa_dword++) begin
             always @(negedge clk) begin
                 if (mldsa_keygen | mldsa_keygen_signing) begin
+                    $display("Forcing MLDSA seed with dword 0x%0h", mldsa_dword);
                     force `CPTRA_TOP_PATH.abr_inst.abr_reg_inst.hwif_in.MLDSA_SEED[mldsa_dword].SEED.we = 'b1;
                     force `CPTRA_TOP_PATH.abr_inst.abr_reg_inst.hwif_in.MLDSA_SEED[mldsa_dword].SEED.next = {mldsa_test_vector.seed[mldsa_dword][7:0], mldsa_test_vector.seed[mldsa_dword][15:8], mldsa_test_vector.seed[mldsa_dword][23:16], mldsa_test_vector.seed[mldsa_dword][31:24]};
                 end
