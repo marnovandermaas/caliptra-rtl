@@ -13,6 +13,3 @@
 // limitations under the License.
 //
 
-`ifndef VERILATOR
-    Axi4PC syntax_error__integrators_must_acquire_axi4pc_from_arm
-`endif
