@@ -383,7 +383,11 @@ module caliptra_top_tb_services
     //         8'hcb        - Inject key 0x0 into all slots for AES
     //         8'hcc        - Inject key into slot 16 for AES
     //         8'hcd        - KV Error checking
-    //         8'hce: 8'hd4 - Unused
+    //         8'hce: 8'hcf - Unused
+    //         8'hd0        - SHA3 public key injection
+    //         8'hd1        - SHA3 message injection
+    //         8'hd2        - MLDSA keygen+signing without injecting message
+    //         8'hd3        - MLDSA verification without injecting message
     //         8'hd5        - Inject randomized HEK test vector
     //         8'hd6        - Inject mldsa timeout
     //         8'hd7        - Inject normcheck or makehint failure during mldsa signing 1st loop. Failure type is selected randomly
@@ -1160,6 +1164,7 @@ module caliptra_top_tb_services
 
     `ifndef VERILATOR
     logic mldsa_keygen, mldsa_signing, mldsa_verify, mldsa_keygen_signing;
+    logic sha3_pubkey, sha3_message, mldsa_keygen_signing_nomsg, mldsa_verify_nomsg;
 
     always @(negedge clk or negedge cptra_rst_b) begin
         if (!cptra_rst_b) begin
@@ -1167,6 +1172,65 @@ module caliptra_top_tb_services
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
+        end
+        else if ((WriteData[7:0] == 8'hd0) && mailbox_write) begin
+            $display("Received d0 command");
+            mldsa_keygen <= 'b0;
+            mldsa_signing <= 'b0;
+            mldsa_verify <= 'b0;
+            mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b1;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
+        end
+        else if ((WriteData[7:0] == 8'hd1) && mailbox_write) begin
+            $display("Received d1 command");
+            mldsa_keygen <= 'b0;
+            mldsa_signing <= 'b0;
+            mldsa_verify <= 'b0;
+            mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b1;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
+        end
+        else if ((WriteData[7:0] == 8'hd2) && mailbox_write) begin
+            $display("Received d2 command");
+            mldsa_keygen <= 'b0;
+            mldsa_signing <= 'b0;
+            mldsa_verify <= 'b0;
+            mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b1;
+            mldsa_verify_nomsg <= 'b0;
+        end
+        else if ((WriteData[7:0] == 8'hd3) && mailbox_write) begin
+            $display("Received d3 command");
+            mldsa_keygen <= 'b0;
+            mldsa_signing <= 'b0;
+            mldsa_verify <= 'b0;
+            mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b1;
+        end
+        else if ((WriteData[7:0] == 8'hd8) && mailbox_write) begin
+            $display("Received d8 command");
+            mldsa_keygen <= 'b0;
+            mldsa_signing <= 'b0;
+            mldsa_verify <= 'b0;
+            mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
         end
         else if ((WriteData[7:0] == 8'hd9) && mailbox_write) begin
             $display("Received d9 command");
@@ -1174,6 +1238,10 @@ module caliptra_top_tb_services
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
         end
         //unlock debug mode
         else if ((WriteData[7:0] == 8'hda) && mailbox_write) begin
@@ -1182,6 +1250,10 @@ module caliptra_top_tb_services
             mldsa_signing <= 'b1;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
         end
         else if((WriteData[7:0] == 8'hdb) && mailbox_write) begin
             $display("Received db command");
@@ -1189,6 +1261,10 @@ module caliptra_top_tb_services
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b1;
             mldsa_keygen_signing <= 'b0;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
         end
         else if((WriteData[7:0] == 8'hdc) && mailbox_write) begin
             $display("Received dc command");
@@ -1196,13 +1272,63 @@ module caliptra_top_tb_services
             mldsa_signing <= 'b0;
             mldsa_verify <= 'b0;
             mldsa_keygen_signing <= 'b1;
+            sha3_pubkey <= 'b0;
+            sha3_message <= 'b0;
+            mldsa_keygen_signing_nomsg <= 'b0;
+            mldsa_verify_nomsg <= 'b0;
         end
-        else if ((WriteData[7:0] == 8'hd8) && mailbox_write) begin
-            $display("Received d8 command");
-            mldsa_keygen <= 'b0;
-            mldsa_signing <= 'b0;
-            mldsa_verify <= 'b0;
-            mldsa_keygen_signing <= 'b0;
+    end
+
+    logic [31:0] sha3_input_counter;
+
+    always @(negedge clk) begin
+        if (sha3_pubkey) begin
+            if (`CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_ready && sha3_input_counter < (648/2)) begin
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_valid = 1'b1;
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_data = {
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)+1][ 7: 0],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)+1][15: 8],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)+1][23:16],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)+1][31:24],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)  ][ 7: 0],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)  ][15: 8],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)  ][23:16],
+                    mldsa_test_vector.pubkey[(sha3_input_counter*2)  ][31:24]
+                };
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_mask = 64'hFFFF_FFFF_FFFF_FFFF;
+                sha3_input_counter <= sha3_input_counter + 1;
+            end
+            if (sha3_input_counter >= (648/2)) begin
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_valid;
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_data;
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_mask;
+            end
+        end else if (sha3_message) begin
+            if (`CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_ready && sha3_input_counter < (16/2)) begin
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_valid = 1'b1;
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_data = {
+                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][ 7: 0],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][15: 8],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][23:16],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][31:24]
+                    mldsa_test_vector.msg[(sha3_input_counter*2)  ][ 7: 0],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)  ][15: 8],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)  ][23:16],
+                    mldsa_test_vector.msg[(sha3_input_counter*2)  ][31:24]
+                };
+                force `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_mask = 64'h0000_0000_FFFF_FFFF;
+                sha3_input_counter <= sha3_input_counter + 1;
+            end
+            if (sha3_input_counter >= (16/2)) begin
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_valid;
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_data;
+                release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_mask;
+            end
+        end else begin
+            sha3_input_counter <= 'b0;
+            release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_valid;
+            release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_data;
+            release `CPTRA_TOP_PATH.sha3.u_sha_inst.mux2fifo_mask;
         end
     end
 
@@ -1211,8 +1337,7 @@ module caliptra_top_tb_services
         //MLDSA keygen - inject seed
         for (mldsa_dword = 0; mldsa_dword < SEED_NUM_DWORDS; mldsa_dword++) begin
             always @(negedge clk) begin
-                if (mldsa_keygen | mldsa_keygen_signing) begin
-                    $display("Forcing MLDSA seed with dword 0x%0h", mldsa_dword);
+                if (mldsa_keygen | mldsa_keygen_signing | mldsa_keygen_signing_nomsg) begin
                     force `CPTRA_TOP_PATH.abr_inst.abr_reg_inst.hwif_in.MLDSA_SEED[mldsa_dword].SEED.we = 'b1;
                     force `CPTRA_TOP_PATH.abr_inst.abr_reg_inst.hwif_in.MLDSA_SEED[mldsa_dword].SEED.next = {mldsa_test_vector.seed[mldsa_dword][7:0], mldsa_test_vector.seed[mldsa_dword][15:8], mldsa_test_vector.seed[mldsa_dword][23:16], mldsa_test_vector.seed[mldsa_dword][31:24]};
                 end
@@ -1285,7 +1410,7 @@ module caliptra_top_tb_services
         //MLDSA verify - inject pk
         for (mldsa_dword = 0; mldsa_dword < 4; mldsa_dword++) begin
             always @(negedge clk) begin
-                if (mldsa_verify) begin
+                if (mldsa_verify | mldsa_verify_nomsg) begin
                     force `CPTRA_TOP_PATH.abr_inst.abr_ctrl_inst.abr_scratch_reg.mldsa_enc.rho[mldsa_dword] = {mldsa_test_vector.pubkey[((mldsa_dword*2)+1)][7:0], mldsa_test_vector.pubkey[((mldsa_dword*2)+1)][15:8], mldsa_test_vector.pubkey[((mldsa_dword*2)+1)][23:16], mldsa_test_vector.pubkey[((mldsa_dword*2)+1)][31:24],
                                                                                                         mldsa_test_vector.pubkey[(mldsa_dword*2)][7:0], mldsa_test_vector.pubkey[(mldsa_dword*2)][15:8], mldsa_test_vector.pubkey[(mldsa_dword*2)][23:16], mldsa_test_vector.pubkey[(mldsa_dword*2)][31:24]};
 
@@ -1298,7 +1423,7 @@ module caliptra_top_tb_services
         for (genvar a = 0; a < 64; a++) begin
             for (genvar b = 0; b < 10; b++) begin
                 always @(negedge clk) begin
-                    if (mldsa_verify) begin
+                    if (mldsa_verify | mldsa_verify_nomsg) begin
                         force abr_mem_top_inst.abr_pk_mem_inst.ram[a][b*4+3:b*4] = {mldsa_test_vector.pubkey[a*10+8+b][7:0], mldsa_test_vector.pubkey[a*10+8+b][15:8], mldsa_test_vector.pubkey[a*10+8+b][23:16], mldsa_test_vector.pubkey[a*10+8+b][31:24]};
                     end
                     else begin
@@ -1311,7 +1436,7 @@ module caliptra_top_tb_services
         //MLDSA verify - inject signature
         for (mldsa_dword = 0; mldsa_dword < VERIFY_RES_NUM_DWORDS; mldsa_dword++) begin
             always @(negedge clk) begin
-                if (mldsa_verify) begin
+                if (mldsa_verify | mldsa_verify_nomsg) begin
                     force `CPTRA_TOP_PATH.abr_inst.abr_ctrl_inst.signature_reg.enc.c[mldsa_dword] = {mldsa_test_vector.signature[mldsa_dword][7:0], mldsa_test_vector.signature[mldsa_dword][15:8], mldsa_test_vector.signature[mldsa_dword][23:16], mldsa_test_vector.signature[mldsa_dword][31:24]};
                 end
                 else begin
@@ -1321,7 +1446,7 @@ module caliptra_top_tb_services
         end
         for (mldsa_dword = 0; mldsa_dword < SIGNATURE_H_NUM_DWORDS; mldsa_dword++) begin
             always @(negedge clk) begin
-                if (mldsa_verify) begin
+                if (mldsa_verify | mldsa_verify_nomsg) begin
                     force `CPTRA_TOP_PATH.abr_inst.abr_ctrl_inst.signature_reg.enc.h[mldsa_dword] = {mldsa_test_vector.signature[1136+mldsa_dword][7:0], mldsa_test_vector.signature[1136+mldsa_dword][15:8], mldsa_test_vector.signature[1136+mldsa_dword][23:16], mldsa_test_vector.signature[1136+mldsa_dword][31:24]};
                 end
                 else begin
@@ -1332,7 +1457,7 @@ module caliptra_top_tb_services
         for (genvar a = 0; a < 224; a++) begin
             for (genvar b = 0; b < 5; b++) begin
                 always @(negedge clk) begin
-                    if (mldsa_verify) begin
+                    if (mldsa_verify | mldsa_verify_nomsg) begin
                         force abr_mem_top_inst.abr_sig_z_mem_inst.ram[a][b*4+3:b*4] = {mldsa_test_vector.signature[a*5+16+b][7:0], mldsa_test_vector.signature[a*5+16+b][15:8], mldsa_test_vector.signature[a*5+16+b][23:16], mldsa_test_vector.signature[a*5+16+b][31:24]};
                     end
                     else begin
