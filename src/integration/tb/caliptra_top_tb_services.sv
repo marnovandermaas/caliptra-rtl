@@ -1310,7 +1310,7 @@ module caliptra_top_tb_services
                     mldsa_test_vector.msg[(sha3_input_counter*2)+1][ 7: 0],
                     mldsa_test_vector.msg[(sha3_input_counter*2)+1][15: 8],
                     mldsa_test_vector.msg[(sha3_input_counter*2)+1][23:16],
-                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][31:24]
+                    mldsa_test_vector.msg[(sha3_input_counter*2)+1][31:24],
                     mldsa_test_vector.msg[(sha3_input_counter*2)  ][ 7: 0],
                     mldsa_test_vector.msg[(sha3_input_counter*2)  ][15: 8],
                     mldsa_test_vector.msg[(sha3_input_counter*2)  ][23:16],
